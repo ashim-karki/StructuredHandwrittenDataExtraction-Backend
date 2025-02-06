@@ -43,23 +43,47 @@ def read_folders(db: Session = Depends(get_db)):
     return [FolderResponse(**folder._asdict()) for folder in folders]
 
 
+# @router.get("/folders/{folder_id}")
+# def read_folder(folder_id: int, db: Session = Depends(get_db)):
+#     folder = (
+#         db.query(blueprints.folders.Folder)
+#         .filter(blueprints.folders.Folder.id == folder_id)
+#     )
+#     if not folder.first():
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail=f"Folder not found",
+#         )
+#     result = (
+#         db.query(blueprints.images.Image)
+#         .join(db.query(blueprints.folders.Folder).filter(blueprints.folders.Folder.id == folder_id))
+#     )
+
+#     return {"folders": folder.first(), "images": result.all()}
+
 @router.get("/folders/{folder_id}")
 def read_folder(folder_id: int, db: Session = Depends(get_db)):
+    # Query for the folder
     folder = (
         db.query(blueprints.folders.Folder)
         .filter(blueprints.folders.Folder.id == folder_id)
+        .first()  # .first() returns the first result or None
     )
-    if not folder.first():
+    if not folder:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Folder not found",
         )
+    
+    # Query for images related to the folder
     result = (
         db.query(blueprints.images.Image)
-        .join(db.query(blueprints.folders.Folder).filter(blueprints.folders.Folder.id == folder_id))
+        .join(blueprints.folders.Folder, blueprints.images.Image.folder_id == blueprints.folders.Folder.id)
+        .filter(blueprints.folders.Folder.id == folder_id)
+        .all()  # .all() returns the list of results
     )
 
-    return {"folders": folder.first(), "images": result.all()}
+    return {"folder": folder, "images": result}
 
 
 class Create_Folder(BaseModel):
