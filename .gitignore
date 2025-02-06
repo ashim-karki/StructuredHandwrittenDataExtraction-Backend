@@ -1,0 +1,61 @@
+# Ignore Python byte code files, virtual environments, and dependencies
+__pycache__/
+*.pyc
+venv/
+env/
+*.env
+
+# Ignore local development settings
+/.vscode/
+/.idea/
+
+# Ignore macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore logs and other dynamically created files
+*.log
+
+# Ignore database files
+*.db
+
+# Ignore generated files
+/dist/
+/build/
+*.egg-info/
+*.egg
+
+# Ignore environment-specific files
+.env.local
+.env.*.local
+
+# Ignore FastAPI auto-generated documentation
+/docs/
+
+# Ignore pytest cache
+__pycache__/
+.pytest_cache/
+
+# Ignore coverage reports
+.coverage
+htmlcov/
+
+# Ignore pipenv and poetry specific files
+Pipfile
+Pipfile.lock
+pyproject.toml
+
+# Ignore Docker related files if using Docker
+.dockerignore
+.docker/
+
+# Ignore Jupyter notebooks
+*.ipynb_checkpoints/
+
+# Ignore Heroku specific files if deploying to Heroku
+*.heroku/
+
+# Ignore macOS .DS_Store files in every directory
+**/.DS_Store
+*.DS_Store
