@@ -9,7 +9,6 @@ class Image(Base):
     __tablename__ = "images" # it is common practice to use a lowercase and plural form for the table name
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user = Column(String)
     path = Column(String)
     name = Column(String)
     size_x = Column(Integer)

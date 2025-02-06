@@ -17,7 +17,7 @@ router = APIRouter()
 @router.post("/upload")
 # def read_tags(db: Session = Depends(get_db), user=Depends(get_user_token)):
 def upload_images_with_folder(
-    folder_id: str = Form(...),
+    folder_id: str = Form(...), # ... means required
     files: List[UploadFile] = File(...),
     db=Depends(get_db),
 ):
@@ -30,18 +30,18 @@ def upload_images_with_folder(
     try:
         for file in files:
             filename = file.filename
-            id = uuid.uuid4().hex
+            # id = uuid.uuid4().hex
             folder_path = "uploaded_images/"
             if not os.path.exists(folder_path):
                 os.makedirs(folder_path)
-            path = folder_path + id + file.content_type.replace("image/", ".")
+            path = folder_path + filename # replaced id with filename so that image will be saved with its original name
             with open(path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
             # TODO: optimize, need to find way to get image size without opening it
             img = PILImage.open(path)
             image = blueprints.images.Image(
                 name=filename,
-                path=id + file.content_type.replace("image/", "."),
+                path=folder_path + filename, # replaced id with filename so that image will be saved with its original name
                 folder=folder,
                 size_x=img.size[0],
                 size_y=img.size[1],
@@ -66,11 +66,11 @@ class Image(BaseModel):
     path: str
 
 # discard image
-@router.delete("/image/{image_id}")
+@router.delete("/image/{filename}")
 def delete_image(
-    image_id: int, db: Session = Depends(get_db)
+    filename: str, db: Session = Depends(get_db)
 ):
-    image = db.query(blueprints.images.Image).filter_by(id=image_id).first()
+    image = db.query(blueprints.images.Image).filter_by(name=filename).first()
     db.delete(image)
     db.commit()
     return {"message": "Image deleted successfully!"}

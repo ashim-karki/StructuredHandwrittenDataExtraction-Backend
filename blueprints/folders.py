@@ -8,7 +8,6 @@ class Folder(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    user = Column(String)
     description = Column(String)
     color = Column(String)
 
