@@ -61,4 +61,4 @@ pyproject.toml
 *.DS_Store
 
 # Ignore uploaded folder contents
-/uploaded_images/*
+uploaded_images/*
