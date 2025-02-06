@@ -3,6 +3,7 @@ from fastapi import Depends, FastAPI
 from db.data_access import Base, engine
 
 from routes.folders import router as folders_router
+from routes.images import router as images_router
 
 app = FastAPI()
 
@@ -22,6 +23,7 @@ app.add_middleware(
 # app.middleware("http")(logging_middleware)
 
 app.include_router(folders_router, prefix="/api", tags=["folders"])
+app.include_router(images_router, prefix="/api", tags=["images"])
 
 @app.get("/")
 async def hello():
