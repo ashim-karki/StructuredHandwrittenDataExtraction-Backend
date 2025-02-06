@@ -86,7 +86,7 @@ def read_folder(folder_id: int, db: Session = Depends(get_db)):
     return {"folder": folder, "images": result}
 
 
-class Create_Folder(BaseModel):
+class CreateFolder(BaseModel):
     name: str
     description: str
     color: str
@@ -96,7 +96,7 @@ class Create_Folder(BaseModel):
 
 
 @router.post("/folders")
-def create_folder(folder: Create_Folder, db: Session = Depends(get_db)):
+def create_folder(folder: CreateFolder, db: Session = Depends(get_db)):
     folder = blueprints.folders.Folder(
         name=folder.name, description=folder.description, color=folder.color
     )
@@ -108,7 +108,7 @@ def create_folder(folder: Create_Folder, db: Session = Depends(get_db)):
 
 @router.put("/folders/{folder_id}")
 def update_folder(
-    folder: Create_Folder,
+    folder: CreateFolder,
     folder_id: int,
     db: Session = Depends(get_db),
 ):

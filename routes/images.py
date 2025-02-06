@@ -4,13 +4,12 @@ from db.data_access import get_db
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from starlette.responses import FileResponse
-import shutil, uuid
+import shutil
 from typing import List
 from fastapi_pagination import add_pagination
 import blueprints.images
 from PIL import Image as PILImage
 import os
-import random
 
 router = APIRouter()
 
