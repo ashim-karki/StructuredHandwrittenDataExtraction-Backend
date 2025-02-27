@@ -65,16 +65,24 @@ class Image(BaseModel):
     path: str
 
 # discard image
-@router.delete("/image/{filename}")
-def delete_image(
-    filename: str, db: Session = Depends(get_db)
-):
-    image = db.query(blueprints.images.Image).filter_by(name=filename).first()
-    db.delete(image)
-    db.commit()
-    return {"message": "Image deleted successfully!"}
+from fastapi import HTTPException
 
-add_pagination(router)
+# TODO: add delete image
+ 
+# @router.delete("/image/{filename}")
+# def delete_image(
+#     filename: str, db: Session = Depends(get_db)
+# ):
+#     image = db.query(blueprints.images.Image).filter_by(name=filename).first()
+
+#     if image is None:
+#         raise HTTPException(status_code=404, detail="Image not found")
+
+#     db.delete(image)
+#     db.commit()
+#     return {"message": "Image deleted successfully!"}
+
+# add_pagination(router)
 
 # @router.get("/allimages", response_model=Page[Image])
 # def get_all_images(db: Session = Depends(get_db), user=Depends(get_user_token)):
