@@ -15,7 +15,10 @@ class OCR(Base):
     posy_1 = Column(Integer)
 
     image_id = Column(Integer, ForeignKey("images.id", ondelete="CASCADE"))
-    # image = relationship("Image", back_populates="words")
+
+    # remove later
+    image = relationship("Image", back_populates="words")
+    
     annotation = relationship("AnnotatedWord", back_populates="word")
     created_at = Column(DateTime, server_default=func.now())
 

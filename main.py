@@ -5,6 +5,7 @@ from db.data_access import Base, engine
 from routes.folders import router as folders_router
 from routes.images import router as images_router
 from routes.annotation import router as annotation_router
+from routes.tasks import router as tasks_router
 
 app = FastAPI()
 
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(folders_router, prefix="/api", tags=["folders"])
 app.include_router(images_router, prefix="/api", tags=["images"])
 app.include_router(annotation_router, prefix="/api", tags=["annotation"])
+app.include_router(tasks_router, prefix="/api", tags=["tasks"])
 
 @app.get("/")
 async def hello():
