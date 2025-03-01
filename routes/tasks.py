@@ -71,10 +71,9 @@ def start_task(
         type=Type.ocr,  # Make sure this enum exists and is imported
         folder_id=folder_id,
     )
-
     return {"message": "OCR task started successfully"}
 
-@router.delete("/task/{task_id}")
+@router.delete("/tasks/{task_id}")
 def delete_task(
     task_id: int, db: Session = Depends(get_db)
 ):
