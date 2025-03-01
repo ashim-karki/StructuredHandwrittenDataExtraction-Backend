@@ -32,7 +32,7 @@ def normalize(points: list, width: int, height: int) -> list:
     y0 = int(1000 * (y0 / height))
     y2 = int(1000 * (y2 / height))
 
-    # print(x0, y0, x2, y2)
+    print(x0, y0, x2, y2)
 
     return [x0, y0, x2, y2]
 
