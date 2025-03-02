@@ -47,10 +47,11 @@ def get_image_annotations(
     return response_data
 
 
-@router.post("/annotations/{image_id}/{folder_id}")
+@router.post("/annotate/{image_id}/{folder_id}")
 def post_image_annotation(
     image_id: int,
     folder_id: int,
+    updated_text: str,  # Ensure this is the correct field name
     db: Session = Depends(get_db),
 ):
     # Verify the folder exists
@@ -65,62 +66,114 @@ def post_image_annotation(
     ).first()
     if not image:
         raise HTTPException(status_code=404, detail="Image not found in the specified folder")
-
-    # Process the specific image
-    file_path = "uploaded_images/" + image.name
-    key_value = extract_keyvalue(file_path, image_id)
     
-    added_annotations = []
-    
-    for item in key_value:
-        # Create OCR record
+    # Check if OCR record exists and update, otherwise create new
+    word = db.query(OCR).filter(OCR.image_id == image.id).first()
+    if word:
+        word.text = updated_text
+    else:
         word = OCR(
-            text=item["value"],
-            posx_0=item["value_bbox"][0],
-            posy_0=item["value_bbox"][1],
-            posx_1=item["value_bbox"][2],
-            posy_1=item["value_bbox"][3],
-            image_id=image_id,
+            text=updated_text,
+            posx_0=0,
+            posy_0=0,
+            posx_1=0,
+            posy_1=0,
+            image_id=image.id,
         )
         db.add(word)
-        db.commit()  # Ensures the ID is generated
-        
-        # Create Label record
-        label = Label(
-            name=item["key"],
-            posx_0=item["key_bbox"][0],
-            posy_0=item["key_bbox"][1],
-            posx_1=item["key_bbox"][2],
-            posy_1=item["key_bbox"][3],
-            image_id=image_id,
-        )
-        db.add(label)
-        db.commit()
-        
-        # Create Annotation record
+    db.commit()
+    db.refresh(word)
+    
+    # Check if Annotation record exists and update, otherwise create new
+    annotation = db.query(AnnotatedWord).filter(AnnotatedWord.image_id == image.id).first()
+    if annotation:
+        annotation.word_id = word.word_id
+    else:
         annotation = AnnotatedWord(
             word_id=word.word_id,
-            image_id=image_id,
-            label_id=label.id,
+            image_id=image.id,
+            label_id=None  # Adjust as needed
         )
         db.add(annotation)
-        db.commit()
-        
-        added_annotations.append({
-            "annotation_id": annotation.id,
-            "word_id": word.word_id,
-            "word_text": word.text,
-            "label_id": label.id,
-            "label_name": label.name
-        })
+    db.commit()
+    db.refresh(annotation)
+    
+    return {"message": "Annotation successfully added or updated", "annotation_id": annotation.id}
 
-    # Return results for this specific image
-    return {
-        "image_id": image_id,
-        "folder_id": folder_id,
-        "annotations_added": len(added_annotations),
-        "annotations": added_annotations
-    }
+# @router.post("/annotations/{image_id}/{folder_id}")
+# def post_image_annotation(
+#     image_id: int,
+#     folder_id: int,
+#     db: Session = Depends(get_db),
+# ):
+#     # Verify the folder exists
+#     folder = db.query(Folder).filter(Folder.id == folder_id).first()
+#     if not folder:
+#         raise HTTPException(status_code=404, detail="Folder not found")
+    
+#     # Verify the image exists and belongs to the specified folder
+#     image = db.query(Image).filter(
+#         Image.id == image_id,
+#         Image.folder_id == folder_id
+#     ).first()
+#     if not image:
+#         raise HTTPException(status_code=404, detail="Image not found in the specified folder")
+
+#     # Process the specific image
+#     file_path = "uploaded_images/" + image.name
+#     key_value = extract_keyvalue(file_path, image_id)
+    
+#     added_annotations = []
+    
+#     for item in key_value:
+#         # Create OCR record
+#         word = OCR(
+#             text=item["value"],
+#             posx_0=item["value_bbox"][0],
+#             posy_0=item["value_bbox"][1],
+#             posx_1=item["value_bbox"][2],
+#             posy_1=item["value_bbox"][3],
+#             image_id=image_id,
+#         )
+#         db.add(word)
+#         db.commit()  # Ensures the ID is generated
+        
+#         # Create Label record
+#         label = Label(
+#             name=item["key"],
+#             posx_0=item["key_bbox"][0],
+#             posy_0=item["key_bbox"][1],
+#             posx_1=item["key_bbox"][2],
+#             posy_1=item["key_bbox"][3],
+#             image_id=image_id,
+#         )
+#         db.add(label)
+#         db.commit()
+        
+#         # Create Annotation record
+#         annotation = AnnotatedWord(
+#             word_id=word.word_id,
+#             image_id=image_id,
+#             label_id=label.id,
+#         )
+#         db.add(annotation)
+#         db.commit()
+        
+#         added_annotations.append({
+#             "annotation_id": annotation.id,
+#             "word_id": word.word_id,
+#             "word_text": word.text,
+#             "label_id": label.id,
+#             "label_name": label.name
+#         })
+
+#     # Return results for this specific image
+#     return {
+#         "image_id": image_id,
+#         "folder_id": folder_id,
+#         "annotations_added": len(added_annotations),
+#         "annotations": added_annotations
+#     }
 
 # @router.get("/annotation/{folder_id}")
 # def get_annotations(

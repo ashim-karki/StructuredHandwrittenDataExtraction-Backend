@@ -3,9 +3,10 @@ import logging
 from db.data_access import get_db
 from fastapi import BackgroundTasks
 from db.data_access import get_db
-from blueprints import OCR
+from blueprints import OCR, Label, AnnotatedWord
 from routes.common.folder2image import get_images_from_folder
 from routes.common.temp_ocr import apply_ocr
+from routes.common.extraction import text_extraction
 
 def background_ocr_task(db, folder_id):
     """Modified to accept a db session and folder_id instead of images"""
@@ -19,37 +20,73 @@ def background_ocr_task(db, folder_id):
         yield 100  # Nothing to process
         return
     
-    ocred_words = []
     for i, image in enumerate(images):
         # Explicitly query for words instead of using lazy loading
         words = db.query(OCR).filter(OCR.image_id == image.id).all()
+        print(words)
+
+        added_annotations = []
+
         if words:  # Using words directly instead of len(image.words)
             yield (i + 1) / total_images * 100
         else:
-            bboxes = apply_ocr(
-                image.path,
-                "",
-                write_to_file=False,
-                normalize_bbox=True,
-            )
-            for item in bboxes:
-                if item["value"] == "":
-                    continue
-                ocred_words.append(
-                    OCR(
-                        text=item["value"],
-                        posx_0=item["bbox"][0],
-                        posy_0=item["bbox"][1],
-                        posx_1=item["bbox"][2],
-                        posy_1=item["bbox"][3],
-                        image_id=image.id,
-                    )
-                )
+            print(image.path)
+            extracted_text = text_extraction(image.path)
+            # ocred_words.append(
+            #     OCR(
+            #         text=bboxes,
+            #         posx_0=0,
+            #         posy_0=0,
+            #         posx_1=0,
+            #         posy_1=0,
+            #         image_id=image.id,
+            #     )
+            # )
             
-            if ocred_words:  # Only commit if there are words to add
-                db.add_all(ocred_words)
-                db.commit()
-                ocred_words = []  # Reset for next batch
+            # if ocred_words:  # Only commit if there are words to add
+            #     db.add_all(ocred_words)
+            #     db.commit()
+            #     ocred_words = []  # Reset for next batch
+
+            word = OCR(
+            text=extracted_text,
+            posx_0=0,
+            posy_0=0,
+            posx_1=0,
+            posy_1=0,
+            image_id=image.id,
+            )
+            db.add(word)
+            db.commit()  # Ensures the ID is generated
+            
+            # Create Label record
+            label = Label(
+                name='Text',
+                posx_0=0,
+                posy_0=0,
+                posx_1=0,
+                posy_1=0,
+                image_id=image.id,
+            )
+            db.add(label)
+            db.commit()
+            
+            # Create Annotation record
+            annotation = AnnotatedWord(
+                word_id=word.word_id,
+                image_id=image.id,
+                label_id=label.id,
+            )
+            db.add(annotation)
+            db.commit()
+            
+            added_annotations.append({
+                "annotation_id": annotation.id,
+                "word_id": word.word_id,
+                "word_text": word.text,
+                "label_id": label.id,
+                "label_name": label.name
+            })
                 
             yield (i + 1) / total_images * 100
 

@@ -72,6 +72,9 @@ def start_task(
         folder_id=folder_id,
     )
     return {"message": "OCR task started successfully"}
+    # text_extraction("/Users/ashim_karki/Desktop/MajorProject/9)MajorBackend/uploaded_images/handwritten_form.png")
+
+
 
 @router.delete("/tasks/{task_id}")
 def delete_task(
