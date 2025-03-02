@@ -4,7 +4,15 @@ def extract_keyvalue(file_path: str, image_id: int):
             {
                 "key": "13 name",
                 "key_bbox": [1,2,3,4],
-                "value": "ashim",
+                "value": """THIS IS A PARAGRAPH ashim is a good boy. he is also a bad boy.
+                he is friend with anil paudel.
+                i don't know what he is like but people say that he is also a very good bad boy.""",
+                "value_bbox": [5,6,7,8],
+            },
+            {
+                "key": "13 second name",
+                "key_bbox": [1,2,3,4],
+                "value": "This is for testing purpose of bad boys api",
                 "value_bbox": [5,6,7,8],
             }
         ]
