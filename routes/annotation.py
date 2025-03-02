@@ -6,6 +6,8 @@ from routes.common.keyvalue_extraction import extract_keyvalue
 
 from blueprints import AnnotatedWord, Folder, Image, Label, OCR
 
+from typing import List
+
 router = APIRouter()
 
 @router.get("/annotations/{image_id}/{folder_id}")
@@ -51,7 +53,7 @@ def get_image_annotations(
 def post_image_annotation(
     image_id: int,
     folder_id: int,
-    updated_text: str,  # Ensure this is the correct field name
+    annotations: List[dict],  # Expecting a list of annotation objects from frontend
     db: Session = Depends(get_db),
 ):
     # Verify the folder exists
@@ -67,38 +69,43 @@ def post_image_annotation(
     if not image:
         raise HTTPException(status_code=404, detail="Image not found in the specified folder")
     
-    # Check if OCR record exists and update, otherwise create new
-    word = db.query(OCR).filter(OCR.image_id == image.id).first()
-    if word:
-        word.text = updated_text
-    else:
-        word = OCR(
-            text=updated_text,
-            posx_0=0,
-            posy_0=0,
-            posx_1=0,
-            posy_1=0,
-            image_id=image.id,
-        )
-        db.add(word)
-    db.commit()
-    db.refresh(word)
+    for annotation in annotations:
+        word_id = annotation.get("word_id")
+        updated_text = annotation.get("word")  # Extract only the "word" field
+        
+        # Check if OCR record exists and update
+        word = db.query(OCR).filter(OCR.word_id == word_id, OCR.image_id == image.id).first()
+        if word:
+            word.text = updated_text
+        else:
+            word = OCR(
+                text=updated_text,
+                posx_0=0,
+                posy_0=0,
+                posx_1=0,
+                posy_1=0,
+                image_id=image.id,
+            )
+            db.add(word)
+        db.commit()
+        db.refresh(word)
+        
+        # Check if Annotation record exists and update, otherwise create new
+        annotation_record = db.query(AnnotatedWord).filter(
+            AnnotatedWord.word_id == word.word_id,
+            AnnotatedWord.image_id == image.id
+        ).first()
+        if not annotation_record:
+            annotation_record = AnnotatedWord(
+                word_id=word.word_id,
+                image_id=image.id,
+                label_id=None  # Adjust as needed
+            )
+            db.add(annotation_record)
+        db.commit()
+        db.refresh(annotation_record)
     
-    # Check if Annotation record exists and update, otherwise create new
-    annotation = db.query(AnnotatedWord).filter(AnnotatedWord.image_id == image.id).first()
-    if annotation:
-        annotation.word_id = word.word_id
-    else:
-        annotation = AnnotatedWord(
-            word_id=word.word_id,
-            image_id=image.id,
-            label_id=None  # Adjust as needed
-        )
-        db.add(annotation)
-    db.commit()
-    db.refresh(annotation)
-    
-    return {"message": "Annotation successfully added or updated", "annotation_id": annotation.id}
+    return {"message": "Annotations successfully added or updated"}
 
 # @router.post("/annotations/{image_id}/{folder_id}")
 # def post_image_annotation(
