@@ -114,6 +114,8 @@ class TextProcessor:
             tuple: (is_handwritten, filtered_results, extracted_texts)
         """
         # Run OCR
+        if 'Table' in os.path.basename(image_path):
+            return (0,[],[])
         result = self.paddle_ocr.ocr(image_path, cls=True)
         
         # Check if OCR found anything
