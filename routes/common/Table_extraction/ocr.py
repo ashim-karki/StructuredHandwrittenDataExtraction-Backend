@@ -15,6 +15,8 @@ logging.getLogger().setLevel(logging.CRITICAL)
 # Initialize the PaddleOCR model (English)
 class Recognize:
   def __init__(self,ocr):
+    if ocr is None:
+        self.ocr = PaddleOCR(use_angle_cls=True, lang='en')  # You can add more languages if needed
     self.ocr=ocr
 
   def apply_ocr(self,cell_coordinate,crop):

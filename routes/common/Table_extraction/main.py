@@ -10,7 +10,7 @@ from .ocr import Recognize
 import csv
 
 
-def extract(ocr,img_path,output_path='./output1.csv'):
+def extract(img_path,ocr=None,output_path='./output1.csv'):
 
     model = AutoModelForObjectDetection.from_pretrained("microsoft/table-transformer-detection", revision="no_timm")
 
@@ -84,6 +84,7 @@ def extract(ocr,img_path,output_path='./output1.csv'):
         cell_coordinate = get_cell_coordinates_by_row(cell)
         cell_coordinates.extend([cell_coordinate])
     
+    # Apply OCR to the cells
     paddle_ocr=Recognize(ocr)
     for i in range(len(cell_coordinates)):
         data = paddle_ocr.apply_ocr(cell_coordinates[i],cropped_table[i])
