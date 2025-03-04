@@ -83,7 +83,7 @@ def read_folder(folder_id: int, db: Session = Depends(get_db)):
         .all()  # .all() returns the list of results
     )
 
-    return {"folder": folder, "images": result}
+    return {"folder": folder, "images": result, "labels": ["testing label"]}
 
 
 class CreateFolder(BaseModel):

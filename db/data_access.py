@@ -20,9 +20,34 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
+
+# def get_db_factory():
+#     """Returns a function that creates new database sessions"""
+#     # This should be similar to your get_db function but returns the function
+#     # that creates sessions rather than a session directly
+    
+#     def _get_db():
+#         db = SessionLocal()
+#         try:
+#             return db
+#         except Exception:
+#             db.close()
+#             raise
+            
+#     return _get_db
+
 def get_db():
+    """Returns a new database session"""
+    
     db = SessionLocal()
     try:
-        yield db
-    finally:
+        return db
+    except Exception:
         db.close()
+        raise
