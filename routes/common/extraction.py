@@ -36,11 +36,7 @@ class main_extraction:
         text_processor = TextProcessor()
         image_results, ocr = text_processor.process_directory(dirs['original'])
 
-        ocr_texts = []
-        for text in image_results:
-            ocr_texts.append(f"{text['text']}")
-
-        return '\n'.join(ocr_texts),ocr
+        return image_results,ocr
     
     def main(self,img_path):
         # args = parse_arguments()
@@ -63,13 +59,20 @@ class main_extraction:
         clean_directories([dirs['original'], dirs['resized'], dirs['visualization']])
 
         if self.flag==Type.ocr:
-            ocr_texts,_=self.text_extraction(dirs,input_path)
+            image_results,_=self.text_extraction(dirs,input_path)
+            ocr_texts = []
+            for text in image_results:
+                ocr_texts.append(f"{text['text']}")
             return '\n'.join(ocr_texts),[]
         
         elif self.flag==Type.table_and_ocr:
-            ocr_texts,ocr=self.text_extraction(dirs,input_path)
+            image_results,ocr=self.text_extraction(dirs,input_path)
+            ocr_texts = []
+            for text in image_results:
+                ocr_texts.append(f"{text['text']}")
             table_texts = []
-            for image in ocr_texts:
+            # print(ocr_texts)
+            for image in image_results:
                 if 'Table' in os.path.basename(image['image_path']):
                     outputs=extract(image['image_path'],ocr)
                     df = pd.DataFrame(outputs[1:], columns=outputs[0])

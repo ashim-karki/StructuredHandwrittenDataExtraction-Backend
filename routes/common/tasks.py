@@ -9,15 +9,73 @@ from routes.common.temp_ocr import apply_ocr
 from routes.common.extraction import main_extraction
 from blueprints.tasks import Type
 
+
 def background_ocr_task(db, folder_id, task_type_enum):
+    def ocr_populate(extracted_text):
+        word = OCR(
+        text=extracted_text,
+        posx_0=0,
+        posy_0=0,
+        posx_1=0,
+        posy_1=0,
+        image_id=image.id,
+        )
+        db.add(word)
+        db.commit()  # Ensures the ID is generated
+        
+        # Create Label record
+        label = Label(
+            name='Text',
+            posx_0=0,
+            posy_0=0,
+            posx_1=0,
+            posy_1=0,
+            image_id=image.id,
+        )
+        db.add(label)
+        db.commit()
+        
+        # Create Annotation record
+        annotation = AnnotatedWord(
+            word_id=word.word_id,
+            image_id=image.id,
+            label_id=label.id,
+        )
+        db.add(annotation)
+        db.commit()
 
-    # if task_type_enum == Type.ocr:
-    #         print("OCR task!")
-
-    # if task_type_enum == Type.table:
-    #         print("Table task!")  
-
-    # if task_type_enum == Type.table_and_ocr:
+    def table_populate(table_texts):
+        table_texts = OCR(
+        text=table_text,
+        posx_0=0,
+        posy_0=0,
+        posx_1=0,
+        posy_1=0,
+        image_id=image.id,
+        )
+        db.add(table_texts)
+        db.commit()  # Ensures the ID is generated
+        
+        # Create Label record
+        table_label = Label(
+            name='Table',
+            posx_0=0,
+            posy_0=0,
+            posx_1=0,
+            posy_1=0,
+            image_id=image.id,
+        )
+        db.add(table_label)
+        db.commit()
+        
+        # Create Annotation record
+        table_annotation = AnnotatedWord(
+            word_id=table_texts.word_id,
+            image_id=image.id,
+            label_id=table_label.id,
+        )
+        db.add(table_annotation)
+        db.commit()
 
     """Modified to accept a db session and folder_id instead of images"""
     # Get images with the active session
@@ -31,7 +89,8 @@ def background_ocr_task(db, folder_id, task_type_enum):
         yield 100  # Nothing to process
         return
     
-    extract=main_extraction(task_type_enum)
+
+    extract = main_extraction(task_type_enum)
     for i, image in enumerate(images):
         # Explicitly query for words instead of using lazy loading
         words = db.query(OCR).filter(OCR.image_id == image.id).all()
@@ -45,89 +104,14 @@ def background_ocr_task(db, folder_id, task_type_enum):
             print(image.path)
             extracted_text, table_text = extract.main(image.path)
 
-            word = OCR(
-            text=extracted_text,
-            posx_0=0,
-            posy_0=0,
-            posx_1=0,
-            posy_1=0,
-            image_id=image.id,
-            )
-            db.add(word)
-            db.commit()  # Ensures the ID is generated
-            
-            # Create Label record
-            label = Label(
-                name='Text',
-                posx_0=0,
-                posy_0=0,
-                posx_1=0,
-                posy_1=0,
-                image_id=image.id,
-            )
-            db.add(label)
-            db.commit()
-            
-            # Create Annotation record
-            annotation = AnnotatedWord(
-                word_id=word.word_id,
-                image_id=image.id,
-                label_id=label.id,
-            )
-            db.add(annotation)
-            db.commit()
-            
-            # added_annotations.append({
-            #     "annotation_id": annotation.id,
-            #     "word_id": word.word_id,
-            #     "word_text": word.text,
-            #     "label_id": label.id,
-            #     "label_name": label.name
-            # })
-
-            table_texts = OCR(
-            text=table_text,
-            posx_0=0,
-            posy_0=0,
-            posx_1=0,
-            posy_1=0,
-            image_id=image.id,
-            )
-            db.add(table_texts)
-            db.commit()  # Ensures the ID is generated
-            
-            # Create Label record
-            table_label = Label(
-                name='Table',
-                posx_0=0,
-                posy_0=0,
-                posx_1=0,
-                posy_1=0,
-                image_id=image.id,
-            )
-            db.add(table_label)
-            db.commit()
-            
-            # Create Annotation record
-            table_annotation = AnnotatedWord(
-                word_id=table_texts.word_id,
-                image_id=image.id,
-                label_id=table_label.id,
-            )
-            db.add(table_annotation)
-            db.commit()
-            
-            # added_annotations.append({
-            #     "annotation_id": annotation.id,
-            #     "word_id": word.word_id,
-            #     "word_text": word.text,
-            #     "label_id": label.id,
-            #     "label_name": label.name
-            # })
-                
+            if task_type_enum == Type.ocr:
+                ocr_populate(extracted_text)
+            elif task_type_enum == Type.table_and_ocr:
+                ocr_populate(extracted_text)
+                table_populate(table_text)
+            else:  
+                table_populate(table_text)
             yield (i + 1) / total_images * 100
-        
-
 
 def periodic_task_updater(db_factory, task_id, task_func):
     """
