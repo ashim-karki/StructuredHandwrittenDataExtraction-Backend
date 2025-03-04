@@ -12,8 +12,8 @@ class Status(enum.Enum):
 
 class Type(enum.Enum):
     ocr = 1
-    review = 2 # not needed
-    training = 3 # not needed
+    table = 2 
+    table_and_ocr = 3
 
 
 class Task(Base):

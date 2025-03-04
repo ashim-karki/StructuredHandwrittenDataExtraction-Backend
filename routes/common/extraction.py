@@ -13,10 +13,10 @@ sys.path.append(project_root)
 print(project_root)
 
 from utils.file_utils import ensure_directories, clean_directories
-from processors.pdf_processor import PDFProcessor
 from processors.layout_processor import LayoutProcessor
 from processors.text_processor import TextProcessor
-from processors.correction_processor import CorrectionProcessor
+from Table_extraction.main import extract
+import pandas as pd
 
 
 
@@ -48,22 +48,35 @@ def text_extraction(img_path):
     
     # Step 3: OCR processing
     text_processor = TextProcessor()
-    image_results = text_processor.process_directory(dirs['original'])
-    
+    image_results, ocr = text_processor.process_directory(dirs['original'])
+
+    ocr_texts = []
+    for text in image_results:
+        ocr_texts.append(f"{text['text']}")
+
+    table_texts = []
+    for image in image_results:
+      if 'Table' in os.path.basename(image['image_path']):
+        outputs=extract(ocr,image['image_path'])
+        df = pd.DataFrame(outputs[1:], columns=outputs[0])
+        table_texts=df.to_string(index=False)
+
+    print('\n'.join(ocr_texts), '\n\n\n', table_texts)
+
     # for image in image_results:
     #     print(image['text'])
     # # Step 4: Text correction
     # correction_processor = CorrectionProcessor()
     # final_texts = correction_processor.correct_all(image_results)
-    
+
     # Save results
-    final_texts = []
-    for text in image_results:
-        final_texts.append(f"{text['text']}")
+    # final_texts = []
+    # for text in image_results:
+    #     final_texts.append(f"{text['text']}")
 
-    clean_directories([dirs['original'], dirs['resized'], dirs['visualization']])
+    # clean_directories([dirs['original'], dirs['resized'], dirs['visualization']])
 
-    return '\n'.join(final_texts)
+    return '\n'.join(ocr_texts), table_texts
       
 # if __name__ == "__main__":
 #     main()

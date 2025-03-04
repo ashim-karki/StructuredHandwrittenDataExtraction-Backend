@@ -7,88 +7,125 @@ from blueprints import OCR, Label, AnnotatedWord
 from routes.common.folder2image import get_images_from_folder
 from routes.common.temp_ocr import apply_ocr
 from routes.common.extraction import text_extraction
+from blueprints.tasks import Type
 
-def background_ocr_task(db, folder_id):
-    """Modified to accept a db session and folder_id instead of images"""
-    # Get images with the active session
-    images = get_images_from_folder(db, folder_id)
-    total_images = len(images)
-    
-    print(total_images)
+def background_ocr_task(db, folder_id, task_type_enum):
 
-    if total_images == 0:
-        yield 100  # Nothing to process
-        return
-    
-    for i, image in enumerate(images):
-        # Explicitly query for words instead of using lazy loading
-        words = db.query(OCR).filter(OCR.image_id == image.id).all()
-        print(words)
+    if task_type_enum == Type.ocr:
+            print("OCR task!")
 
-        added_annotations = []
+    if task_type_enum == Type.table:
+            print("Table task!")  
 
-        if words:  # Using words directly instead of len(image.words)
-            yield (i + 1) / total_images * 100
-        else:
-            print(image.path)
-            extracted_text = text_extraction(image.path)
-            # ocred_words.append(
-            #     OCR(
-            #         text=bboxes,
-            #         posx_0=0,
-            #         posy_0=0,
-            #         posx_1=0,
-            #         posy_1=0,
-            #         image_id=image.id,
-            #     )
-            # )
-            
-            # if ocred_words:  # Only commit if there are words to add
-            #     db.add_all(ocred_words)
-            #     db.commit()
-            #     ocred_words = []  # Reset for next batch
+    if task_type_enum == Type.table_and_ocr:
 
-            word = OCR(
-            text=extracted_text,
-            posx_0=0,
-            posy_0=0,
-            posx_1=0,
-            posy_1=0,
-            image_id=image.id,
-            )
-            db.add(word)
-            db.commit()  # Ensures the ID is generated
-            
-            # Create Label record
-            label = Label(
-                name='Text',
+        """Modified to accept a db session and folder_id instead of images"""
+        # Get images with the active session
+        images = get_images_from_folder(db, folder_id)
+        total_images = len(images)
+        
+        print(total_images)
+
+        if total_images == 0:
+            yield 100  # Nothing to process
+            return
+        
+        for i, image in enumerate(images):
+            # Explicitly query for words instead of using lazy loading
+            words = db.query(OCR).filter(OCR.image_id == image.id).all()
+            print(words)
+
+            # added_annotations = []
+
+            if words:  # Using words directly instead of len(image.words)
+                yield (i + 1) / total_images * 100
+            else:
+                print(image.path)
+                extracted_text, table_text = text_extraction(image.path)
+
+                word = OCR(
+                text=extracted_text,
                 posx_0=0,
                 posy_0=0,
                 posx_1=0,
                 posy_1=0,
                 image_id=image.id,
-            )
-            db.add(label)
-            db.commit()
-            
-            # Create Annotation record
-            annotation = AnnotatedWord(
-                word_id=word.word_id,
-                image_id=image.id,
-                label_id=label.id,
-            )
-            db.add(annotation)
-            db.commit()
-            
-            added_annotations.append({
-                "annotation_id": annotation.id,
-                "word_id": word.word_id,
-                "word_text": word.text,
-                "label_id": label.id,
-                "label_name": label.name
-            })
+                )
+                db.add(word)
+                db.commit()  # Ensures the ID is generated
                 
-            yield (i + 1) / total_images * 100
+                # Create Label record
+                label = Label(
+                    name='Text',
+                    posx_0=0,
+                    posy_0=0,
+                    posx_1=0,
+                    posy_1=0,
+                    image_id=image.id,
+                )
+                db.add(label)
+                db.commit()
+                
+                # Create Annotation record
+                annotation = AnnotatedWord(
+                    word_id=word.word_id,
+                    image_id=image.id,
+                    label_id=label.id,
+                )
+                db.add(annotation)
+                db.commit()
+                
+                # added_annotations.append({
+                #     "annotation_id": annotation.id,
+                #     "word_id": word.word_id,
+                #     "word_text": word.text,
+                #     "label_id": label.id,
+                #     "label_name": label.name
+                # })
+
+                table_texts = OCR(
+                text=table_text,
+                posx_0=0,
+                posy_0=0,
+                posx_1=0,
+                posy_1=0,
+                image_id=image.id,
+                )
+                db.add(table_texts)
+                db.commit()  # Ensures the ID is generated
+                
+                # Create Label record
+                table_label = Label(
+                    name='Table',
+                    posx_0=0,
+                    posy_0=0,
+                    posx_1=0,
+                    posy_1=0,
+                    image_id=image.id,
+                )
+                db.add(table_label)
+                db.commit()
+                
+                # Create Annotation record
+                table_annotation = AnnotatedWord(
+                    word_id=table_texts.word_id,
+                    image_id=image.id,
+                    label_id=table_label.id,
+                )
+                db.add(table_annotation)
+                db.commit()
+                
+                # added_annotations.append({
+                #     "annotation_id": annotation.id,
+                #     "word_id": word.word_id,
+                #     "word_text": word.text,
+                #     "label_id": label.id,
+                #     "label_name": label.name
+                # })
+                    
+                yield (i + 1) / total_images * 100
+        
+
 
 def periodic_task_updater(db_factory, task_id, task_func):
     """
@@ -126,7 +163,7 @@ def create_task(
     description,
     task_func,
     background_tasks: BackgroundTasks,
-    type,
+    task_type_enum,
     folder_id,
 ):
     task = Task(
@@ -134,7 +171,7 @@ def create_task(
         description=description,
         percentage_complete=0,
         status=Status.running,
-        type=type,
+        type=task_type_enum,
         folder_id=folder_id,
     )
     db.add(task)
@@ -146,5 +183,5 @@ def create_task(
         periodic_task_updater, 
         db_factory=get_db,  # Function that returns a new DB session when called
         task_id=task.id,
-        task_func=lambda db: background_ocr_task(db, folder_id)
+        task_func=lambda db: background_ocr_task(db, folder_id, task_type_enum)
     )

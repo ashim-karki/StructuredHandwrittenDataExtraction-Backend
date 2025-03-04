@@ -47,6 +47,7 @@ class FormData(BaseModel):
     folder_id: str
     name: str
     description: str
+    task_type: str
 
     class Config:
         orm_mode = True
@@ -60,7 +61,9 @@ def start_task(
     folder_id = formdata.folder_id
     name = formdata.name
     description = formdata.description
-    print("here 1", folder_id)
+    task_type = formdata.task_type
+    task_type_enum = Type[task_type]
+    print("THE REQUESTED TASK TYPE IS:", task_type_enum, type(task_type_enum))
     
     create_task(
         db,
@@ -68,7 +71,7 @@ def start_task(
         description,
         lambda db, folder_id: background_ocr_task(db, folder_id),
         background_tasks,
-        type=Type.ocr,  # Make sure this enum exists and is imported
+        task_type_enum=task_type_enum,  # Make sure this enum exists and is imported
         folder_id=folder_id,
     )
     return {"message": "OCR task started successfully"}

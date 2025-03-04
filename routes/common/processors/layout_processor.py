@@ -180,7 +180,7 @@ class LayoutProcessor:
             class_name = self.id_to_names[cls.item()]
             
             # Skip tables and abandoned sections
-            if class_name == 'Table' or class_name == 'Abandon':
+            if class_name == 'Abandon':
                 continue
             
             x1, y1, x2, y2 = map(int, box)
