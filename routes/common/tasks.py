@@ -43,6 +43,8 @@ def background_ocr_task(db, folder_id, task_type_enum):
                 print(image.path)
                 extracted_text, table_text = text_extraction(image.path)
 
+                print("FROM API", extracted_text, table_text)
+
                 word = OCR(
                 text=extracted_text,
                 posx_0=0,
@@ -55,7 +57,7 @@ def background_ocr_task(db, folder_id, task_type_enum):
                 db.commit()  # Ensures the ID is generated
                 
                 # Create Label record
-                label = Label(
+                word_label = Label(
                     name='Text',
                     posx_0=0,
                     posy_0=0,
@@ -63,16 +65,16 @@ def background_ocr_task(db, folder_id, task_type_enum):
                     posy_1=0,
                     image_id=image.id,
                 )
-                db.add(label)
+                db.add(word_label)
                 db.commit()
                 
                 # Create Annotation record
-                annotation = AnnotatedWord(
+                word_annotation = AnnotatedWord(
                     word_id=word.word_id,
                     image_id=image.id,
-                    label_id=label.id,
+                    label_id=word_label.id,
                 )
-                db.add(annotation)
+                db.add(word_annotation)
                 db.commit()
                 
                 # added_annotations.append({
@@ -124,7 +126,6 @@ def background_ocr_task(db, folder_id, task_type_enum):
                 # })
                     
                 yield (i + 1) / total_images * 100
-        
 
 
 def periodic_task_updater(db_factory, task_id, task_func):
