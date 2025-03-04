@@ -8,6 +8,7 @@ from transformers import TableTransformerForObjectDetection
 from .cell_coordinates import get_cell_coordinates_by_row
 from .ocr import Recognize
 import csv
+from paddleocr import PaddleOCR
 
 
 def extract(img_path,ocr=None,output_path='./output1.csv'):
@@ -85,6 +86,7 @@ def extract(img_path,ocr=None,output_path='./output1.csv'):
         cell_coordinates.extend([cell_coordinate])
     
     # Apply OCR to the cells
+    ocr = PaddleOCR(use_angle_cls=True, lang='en')  # You can add more languages if needed
     paddle_ocr=Recognize(ocr)
     for i in range(len(cell_coordinates)):
         data = paddle_ocr.apply_ocr(cell_coordinates[i],cropped_table[i])

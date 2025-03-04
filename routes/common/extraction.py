@@ -81,7 +81,7 @@ class main_extraction:
             return '\n'.join(ocr_texts), table_texts
 
         else:
-            outputs=extract(image['image_path'])
+            outputs=extract(input_path)
             df = pd.DataFrame(outputs[1:], columns=outputs[0])
             table_texts=df.to_string(index=False)
 
