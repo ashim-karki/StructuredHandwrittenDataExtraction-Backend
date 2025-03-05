@@ -21,8 +21,6 @@ def read_tasks(db: Session = Depends(get_db)):
             Task.status,
             Task.type,
             Task.folder_id,
-            # Task.imageset_id,
-            # Task.model_id,
         )
         .order_by(Task.created_at.desc())
     ).all()
@@ -63,7 +61,6 @@ def start_task(
     description = formdata.description
     task_type = formdata.task_type
     task_type_enum = Type[task_type]
-    print("THE REQUESTED TASK TYPE IS:", task_type_enum, type(task_type_enum))
     
     create_task(
         db,

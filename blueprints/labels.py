@@ -10,11 +10,6 @@ class Label(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
-    # imageset_id = Column(Integer, ForeignKey("ImageSet.id", ondelete="CASCADE"))
-    # model_id = Column(Integer, ForeignKey("Model.id", ondelete="CASCADE"))
-    # image_set = relationship("ImageSet", back_populates="labels")
-    # model = relationship("Model", back_populates="labels")
-
     # top left and bottom right position for bounding box
     posx_0 = Column(Integer)
     posy_0 = Column(Integer)
@@ -25,8 +20,6 @@ class Label(Base):
 
     created_at = Column(DateTime, server_default=func.now())
     annotated_words = relationship("AnnotatedWord", back_populates="label")
-    
-    # key_information = relationship("KeyInformation", back_populates="label")
 
     def __repr__(self):
         return f"Label(id={self.id}, name={self.name}, annotated words={self.annotated_words}\n)"

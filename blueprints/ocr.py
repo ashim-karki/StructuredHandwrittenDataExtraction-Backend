@@ -16,7 +16,6 @@ class OCR(Base):
 
     image_id = Column(Integer, ForeignKey("images.id", ondelete="CASCADE"))
 
-    # remove later
     image = relationship("Image", back_populates="words")
     
     annotation = relationship("AnnotatedWord", back_populates="word")

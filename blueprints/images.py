@@ -17,7 +17,6 @@ class Image(Base):
     folder_id = Column(Integer, ForeignKey("folders.id"))
     folder = relationship("Folder", back_populates="images")
 
-    # remove later
     words = relationship("OCR", back_populates="image")
 
     created_at = Column(DateTime, server_default=func.now())

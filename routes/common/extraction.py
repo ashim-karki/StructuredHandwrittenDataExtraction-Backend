@@ -10,8 +10,6 @@ import os, sys
 project_root = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(project_root)
 
-print(project_root)
-
 from utils.file_utils import ensure_directories, clean_directories
 from processors.layout_processor import LayoutProcessor
 from processors.text_processor import TextProcessor
@@ -71,20 +69,19 @@ class main_extraction:
             for text in image_results:
                 ocr_texts.append(f"{text['text']}")
             table_texts = []
-            # print(ocr_texts)
             for image in image_results:
                 if 'Table' in os.path.basename(image['image_path']):
                     outputs=extract(image['image_path'],ocr)
-                    df = pd.DataFrame(outputs[1:], columns=outputs[0])
-                    table_texts=df.to_string(index=False)
-
+                    table_texts=str()
+                    for o in outputs:
+                        table_texts+=','.join(o)+'\n'
             return '\n'.join(ocr_texts), table_texts
 
         else:
             outputs=extract(input_path)
-            df = pd.DataFrame(outputs[1:], columns=outputs[0])
-            table_texts=df.to_string(index=False)
-
+            table_texts=str()
+            for o in outputs:
+                table_texts+=','.join(o)+'\n'
             return [],table_texts
 
         

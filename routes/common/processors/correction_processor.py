@@ -105,7 +105,7 @@ class TextValidityChecker:
 
       api_error_message_blurry = "That's a very blurry and small image.  I cannot reliably extract any handwritten words from it.  The resolution is too low and the quality is too poor for accurate text recognition."
 
-      print('/n Using api')
+      print('\n Using api')
       try:
         genai.configure(api_key="AIzaSyBTCgYPf8xfY9hyYAD7rbyEEoYFwX8YXgk")
 

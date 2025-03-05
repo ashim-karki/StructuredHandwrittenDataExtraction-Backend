@@ -82,9 +82,6 @@ def background_ocr_task(db, folder_id, task_type_enum):
     images = get_images_from_folder(db, folder_id)
     total_images = len(images)
 
-    
-    print(total_images)
-
     if total_images == 0:
         yield 100  # Nothing to process
         return
@@ -94,7 +91,6 @@ def background_ocr_task(db, folder_id, task_type_enum):
     for i, image in enumerate(images):
         # Explicitly query for words instead of using lazy loading
         words = db.query(OCR).filter(OCR.image_id == image.id).all()
-        print(words)
 
         # added_annotations = []
 

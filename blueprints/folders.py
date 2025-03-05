@@ -11,9 +11,8 @@ class Folder(Base):
     description = Column(String)
     color = Column(String)
 
-    # delete all image if tag is deleted
+    # delete all image if folder is deleted
     images = relationship("Image", back_populates="folder", cascade="all, delete-orphan")
-    # image_sets = relationship("ImageSet", back_populates="tags")
 
     created_at = Column(DateTime, server_default=func.now())
 

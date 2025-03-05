@@ -8,9 +8,6 @@ class AnnotatedWord(Base):
     id = Column(Integer, primary_key=True, index=True)
     word_id = Column(Integer, ForeignKey("ocr.word_id", ondelete="CASCADE"))
     word = relationship("OCR", back_populates="annotation")
-
-    # imageset_id = Column(Integer, ForeignKey("ImageSet.id", ondelete="CASCADE"))
-    
     image_id = Column(Integer, ForeignKey("images.id", ondelete="CASCADE"))
     label_id = Column(Integer, ForeignKey("labels.id", ondelete="CASCADE"))
     label = relationship("Label", back_populates="annotated_words")
