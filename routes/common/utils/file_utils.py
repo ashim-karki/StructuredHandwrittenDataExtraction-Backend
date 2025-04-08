@@ -37,7 +37,7 @@ def clean_directories(directory_paths):
                         os.remove(file_path)
                 except Exception as e:
                     print(f"Error deleting {file_path}: {e}")
-            print(f"Cleaned directory: {folder_path}")
+            # print(f"Cleaned directory: {folder_path}")
         else:
             print(f"Directory does not exist: {folder_path}")
 

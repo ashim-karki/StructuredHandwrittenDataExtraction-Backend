@@ -5,6 +5,8 @@ import torch
 
 
 MODEL_NAME = 'microsoft/trocr-large-handwritten'
+MODEL_DIR = './routes/common/models/trocr-large-handwritten'
+
 
 class TextRecognition:
     _model = None
@@ -12,17 +14,19 @@ class TextRecognition:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Check for GPU availability
 
     def __init__(self):
+        # Ensure the model directory exists
+        os.makedirs(MODEL_DIR, exist_ok=True)
 
 
         if TextRecognition._model is None:
-            TextRecognition._model = VisionEncoderDecoderModel.from_pretrained(MODEL_NAME)
+            TextRecognition._model = VisionEncoderDecoderModel.from_pretrained(MODEL_NAME,cache_dir=MODEL_DIR)
 
             TextRecognition._model.to(TextRecognition.device)  # Move the model to the specified device
 
 
 
         if TextRecognition._processor is None:
-            TextRecognition._processor = TrOCRProcessor.from_pretrained(MODEL_NAME)
+            TextRecognition._processor = TrOCRProcessor.from_pretrained(MODEL_NAME,cache_dir=MODEL_DIR)
 
     @staticmethod
     def return_generated_text(images_list):

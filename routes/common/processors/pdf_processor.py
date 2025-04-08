@@ -41,6 +41,6 @@ class PDFProcessor:
             img_path = f"{output_folder}/page_{i}.png"
             img.save(img_path, "PNG")
             image_paths.append(img_path)
-            print(f"  Saved: {img_path}")
+            # print(f"  Saved: {img_path}")
             
         return image_paths
