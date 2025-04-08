@@ -37,7 +37,10 @@ class TextProcessor:
             det_db_unclip_ratio=1.6,
             use_dilation=True,
             use_angle_cls=True,
-            lang='en'
+            lang='en',
+            show_log=False,
+            
+
         )
         
         # Initialize TrOCR for handwritten text
@@ -68,14 +71,14 @@ class TextProcessor:
         # Get all image files and sort them
         image_files = [f for f in os.listdir(directory_path) if f.endswith(('.jpg', '.jpeg', '.png'))]
         image_files = sort_files_naturally(image_files)
-        print('sorted_image_files_are:',image_files)
+        # print('sorted_image_files_are:',image_files)
         
         results = []
         for idx, img_file in enumerate(image_files):
             image_path = os.path.join(directory_path, img_file)
             result = self.process_image(idx, image_path)
             results.append(result)
-            print(f"  Processed {img_file}: {'Handwritten' if result['is_handwritten'] else 'Printed'}")
+            # print(f"  Processed {img_file}: {'Handwritten' if result['is_handwritten'] else 'Printed'}")
 
         corrected_results=self.process_handwritten_texts(results) 
 
@@ -304,7 +307,7 @@ class TextProcessor:
                 prev_text=image_data['text']
                 if image_data['is_handwritten'] == 0:
                     image_path = image_data['image_path']
-                    print("image_path",image_path)
+                    # print("image_path",image_path)
 
                     image = cv2.imread(image_path)
 

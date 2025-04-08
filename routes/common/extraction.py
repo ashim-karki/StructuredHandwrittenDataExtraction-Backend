@@ -16,6 +16,8 @@ from processors.text_processor import TextProcessor
 from Table_extraction.main import extract
 import pandas as pd
 from blueprints.tasks import Type
+text_processor = TextProcessor()
+
 
 
 
@@ -31,7 +33,6 @@ class main_extraction:
         layout_processor.visualize_bbox()
         
         # Step 3: OCR processing
-        text_processor = TextProcessor()
         image_results, ocr = text_processor.process_directory(dirs['original'])
 
         return image_results,ocr

@@ -109,13 +109,13 @@ def background_ocr_task(db, folder_id, task_type_enum):
                 table_populate(table_text)
             yield (i + 1) / total_images * 100
 
-def periodic_task_updater(db_factory, task_id, task_func):
+def periodic_task_updater(db, task_id, task_func):
     """
     Use a factory function to create new db sessions for the background task.
     Track task by ID instead of object reference.
     """
     # Create a new session for this background process
-    db = db_factory()  # Call the factory to get a session
+    # db = db_factory()  # Call the factory to get a session
     try:
         # Retrieve the task by ID using the new session
         task = db.query(Task).filter(Task.id == task_id).first()
@@ -163,7 +163,7 @@ def create_task(
     # Pass the get_db function directly as the factory
     background_tasks.add_task(
         periodic_task_updater, 
-        db_factory=get_db,  # Function that returns a new DB session when called
+        db=db,  
         task_id=task.id,
         task_func=lambda db: background_ocr_task(db, folder_id, task_type_enum)
     )
