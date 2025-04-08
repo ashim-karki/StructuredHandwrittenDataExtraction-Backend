@@ -8,7 +8,18 @@ from doclayout_yolo import YOLOv10
 from huggingface_hub import snapshot_download
 
 root_path = os.path.abspath(os.getcwd())
-model_dir = snapshot_download('juliozhao/DocLayout-YOLO-DocStructBench', local_dir='./routes/common/models/model_doclayout/DocLayout-YOLO-DocStructBench')
+
+# Define the directory path
+model_dir = './routes/common/models/model_doclayout/DocLayout-YOLO-DocStructBench'
+
+# Check if the directory exists
+if not os.path.exists(model_dir):
+    # If the directory doesn't exist, download the model
+    model_dir = snapshot_download('juliozhao/DocLayout-YOLO-DocStructBench', local_dir=model_dir)
+else:
+    print(f"Model already exists in {model_dir}. No need to download.")
+    
+# model_dir = snapshot_download('juliozhao/DocLayout-YOLO-DocStructBench', local_dir='./routes/common/models/model_doclayout/DocLayout-YOLO-DocStructBench')
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class LayoutProcessor:
