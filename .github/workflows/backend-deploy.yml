@@ -1,0 +1,45 @@
+name: Backend Deploy
+
+on:
+  workflow_run:
+    workflows: ["Backend Build"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Deploy to Azure VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USERNAME }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          script: |
+            # Define image name for clarity
+            IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/backend:latest"
+            
+            # Pull the latest image
+            echo "Pulling latest image: $IMAGE_NAME"
+            docker pull $IMAGE_NAME
+            
+            # Stop and remove existing container
+            echo "Stopping and removing existing container"
+            docker stop backend || true
+            docker rm backend || true
+            
+            # Run new container
+            echo "Starting new container"
+            docker run -d --name backend -p 8000:8000 \
+              $IMAGE_NAME
+            
+            # Verify container is running
+            echo "Verifying container status"
+            docker ps | grep backend
+            
+            # Clean up
+            echo "Cleaning up unused resources"
+            docker system prune -af
