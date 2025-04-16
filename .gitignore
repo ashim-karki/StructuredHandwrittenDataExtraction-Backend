@@ -62,5 +62,6 @@ pyproject.toml
 
 # Ignore uploaded folder contents
 uploaded_images/*
-routes/common/models/*
+routes/common/models/model_doclayout
+routes/common/models/trocr-large-handwritten
 routes/common/images/*
