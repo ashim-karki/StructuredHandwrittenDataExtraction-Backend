@@ -1,12 +1,10 @@
 name: Backend Deploy
-
 on:
   workflow_run:
     workflows: ["Backend Build"]
     types:
       - completed
   workflow_dispatch:
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -34,16 +32,17 @@ jobs:
             docker stop backend || true
             docker rm backend || true
             
-            # Run new container with volume mounted
+            # Run new container with volume mounted and Google API key
             echo "Starting new container"
             docker run -d --name backend -p 8000:8000 \
               -v backend_db_data:/app/data \
+              -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
               $IMAGE_NAME
             
             # Verify container is running
             echo "Verifying container status"
             docker ps | grep backend
             
-            # Clean up (but don't remove volumes)
+            # Clean up (but don't remove unused volumes)
             echo "Cleaning up unused resources"
-            docker system prune -f  # Removed -a to prevent volume deletion
+            docker system prune -f
