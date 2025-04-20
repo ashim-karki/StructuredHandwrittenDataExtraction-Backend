@@ -22,6 +22,7 @@ jobs:
             
             # Create a named volume if it doesn't exist
             docker volume create backend_db_data || true
+            docker volume create backend_uploaded_images || true
             
             # Pull the latest image
             echo "Pulling latest image: $IMAGE_NAME"
@@ -32,10 +33,11 @@ jobs:
             docker stop backend || true
             docker rm backend || true
             
-            # Run new container with volume mounted and Google API key
+            # Run new container with volumes mounted and Google API key
             echo "Starting new container"
             docker run -d --name backend -p 8000:8000 \
               -v backend_db_data:/app/data \
+              -v backend_uploaded_images:/app/uploaded_images \
               -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
               $IMAGE_NAME
             
