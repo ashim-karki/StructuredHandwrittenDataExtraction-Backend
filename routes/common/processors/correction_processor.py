@@ -2,7 +2,7 @@ import nltk
 import re
 from typing import Union, List, Set
 import google.generativeai as genai
-
+import os
 
 
 class TextValidityChecker:
@@ -107,7 +107,8 @@ class TextValidityChecker:
 
       print('\n Using api')
       try:
-        genai.configure(api_key="AIzaSyBTCgYPf8xfY9hyYAD7rbyEEoYFwX8YXgk")
+        GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+        genai.configure(api_key=GOOGLE_API_KEY)
 
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt_text = "Extract the handwritten words from this image.Donot output text other than that in image" 
