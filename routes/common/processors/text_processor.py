@@ -305,7 +305,7 @@ class TextProcessor:
         for image_data in results:
             if image_data['filtered_results']:
                 prev_text=image_data['text']
-                if image_data['is_handwritten'] == 0:
+                if image_data['is_handwritten'] == 0 and len(image_data['filtered_results'])<2:
                     image_path = image_data['image_path']
                     # print("image_path",image_path)
 
@@ -319,10 +319,10 @@ class TextProcessor:
                         generated_text = self.tr_ocr.return_generated_text(cropped_img)
                         generated_texts.append(generated_text)
 
-                    generated_text = '\n'.join(self.correct_text(prev_text, generated_texts))
+                    generated_text = ' '.join(self.correct_text(prev_text, generated_texts))
                     image_data['text']=generated_text
 
-                elif image_data['is_handwritten'] == 1:
+                else:
                     image_path =  image_data['image_path']
                     generated_text=self.text_det_and_rec(image_path)
                     cleaned_text = ' '.join(generated_text.split())
@@ -336,7 +336,7 @@ class TextProcessor:
                     image_data['text']=generated_text
 
             else:
-                generated_text='\n'.join(image_data['text'])
+                generated_text=' '.join(image_data['text'])
                 image_data['text']=generated_text
         return results
         
