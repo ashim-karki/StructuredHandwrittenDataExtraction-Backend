@@ -22,6 +22,9 @@ jobs:
             # Define image name for clarity
             IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/backend:latest"
             
+            # Create a named volume if it doesn't exist
+            docker volume create backend_db_data || true
+            
             # Pull the latest image
             echo "Pulling latest image: $IMAGE_NAME"
             docker pull $IMAGE_NAME
@@ -31,15 +34,16 @@ jobs:
             docker stop backend || true
             docker rm backend || true
             
-            # Run new container
+            # Run new container with volume mounted
             echo "Starting new container"
             docker run -d --name backend -p 8000:8000 \
+              -v backend_db_data:/app/data \
               $IMAGE_NAME
             
             # Verify container is running
             echo "Verifying container status"
             docker ps | grep backend
             
-            # Clean up
+            # Clean up (but don't remove volumes)
             echo "Cleaning up unused resources"
-            docker system prune -af
+            docker system prune -f  # Removed -a to prevent volume deletion

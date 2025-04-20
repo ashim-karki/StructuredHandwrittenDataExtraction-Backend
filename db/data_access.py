@@ -4,7 +4,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import event
 
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./maindb.db"
+# SQLALCHEMY_DATABASE_URL = "sqlite:///./maindb.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./data/maindb.db"
+
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
