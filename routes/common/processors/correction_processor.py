@@ -111,7 +111,7 @@ class TextValidityChecker:
         genai.configure(api_key=GOOGLE_API_KEY)
 
         model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt_text = "Extract the handwritten words from this image.Donot output text other than that in image" 
+        prompt_text = "Extract the words from this image.Donot output text other than that in image" 
         response = model.generate_content([prompt_text, image])
 
         if response and hasattr(response, 'text') and ( "cannot extract response" in response.text.lower() or api_error_message_blurry.lower() in response.text.lower()):
