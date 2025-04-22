@@ -41,7 +41,6 @@ To set up the project:
     uvicorn main:app --reload
 
 4. **Configure Frontend**  
-   ```bash
    Link to the frontend code [here](https://github.com/paudelanil/StructuredHandwrittenDataExtraction-Frontend)
   
 
@@ -53,19 +52,25 @@ Navigate to the UI or backend storage path and create a folder to hold your docu
 ![Screenshot 2025-04-22 at 10 02 30 AM](https://github.com/user-attachments/assets/73318881-e8dd-47a6-9994-f599b1abdf40)
 
 
-3. **Upload images to the folder**
+
+
+2. **Upload images to the folder**
 Add all scanned or captured documents (e.g., survey forms, marksheets) into the created folder.
 
 ![Screenshot 2025-04-22 at 10 02 54 AM](https://github.com/user-attachments/assets/81e04f3a-8a29-4c25-9305-e13548620bab)
 
 
-5. **Go to Tasks section → Select Task Type → Run the task**
+
+
+3. **Go to Tasks section → Select Task Type → Run the task**
 You can choose between OCR task or Table extraction or both based on your document content.
 
 ![Screenshot 2025-04-22 at 10 03 15 AM](https://github.com/user-attachments/assets/17027970-a73b-46b4-a817-cbc179e66b72)
 
 
-7. **View the completed tasks → Make necessary edits or run heuristic evaluation**
+
+
+4. **View the completed tasks → Make necessary edits or run heuristic evaluation**
 Open the completed tasks tab to make any necessary changes to extracted data. You can also download them individually.
 
 ![Screenshot 2025-04-22 at 10 04 28 AM](https://github.com/user-attachments/assets/6138685e-d282-4078-b112-8543b43f623c)
@@ -73,7 +78,9 @@ Open the completed tasks tab to make any necessary changes to extracted data. Yo
 ![Screenshot 2025-04-22 at 10 05 20 AM](https://github.com/user-attachments/assets/f918436e-1d55-4a9d-9711-6b9a79768e69)
 
 
-9. **Batch Download Results**
+
+
+5. **Batch Download Results**
 Once processing is complete, you can download all the extracted results in structured formats like CSV or JSON.
 
 ![Screenshot 2025-04-22 at 10 06 17 AM](https://github.com/user-attachments/assets/15bab92e-c746-4891-b95e-aaa6fdb8718e)
