@@ -84,3 +84,9 @@ Open the completed tasks tab to make any necessary changes to extracted data. Yo
 Once processing is complete, you can download all the extracted results in structured formats like CSV or JSON.
 
 ![Screenshot 2025-04-22 at 10 06 17 AM](https://github.com/user-attachments/assets/15bab92e-c746-4891-b95e-aaa6fdb8718e)
+
+
+
+6. **Project Demo Video**
+Please visit this link for the demo video of the Project.
+[Demo Video](https://drive.google.com/file/d/1-VL8S9oWkuILbXoNlcq9Ccb-yyBbK5hj/view?usp=sharing)
